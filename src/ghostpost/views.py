@@ -9,6 +9,7 @@ from django.http import JsonResponse, HttpRequest
 
 '''
 NOTES
+    CURL post examples: https://gist.github.com/subfuzion/08c5d85437d5d4f00e58#post-applicationjson 
     CREATE POST
         curl -d '{"post_type":"B", "text":"value2"}' -H "Content-Type: application/json" -X POST http://localhost:8001/api/post/
     VOTE ON POST 
