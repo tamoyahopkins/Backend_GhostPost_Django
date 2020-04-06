@@ -5,6 +5,8 @@ from .models import Post
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import JsonResponse, HttpRequest
+from django.middleware.csrf import get_token
+from rest_framework import serializers
 
 
 '''
@@ -23,9 +25,14 @@ NOTES
         ADDS request.query_params --> QUERY PARAMS <QueryDict: {'a': ['foo']}>
 '''
 
+def csrf(request):
+    return JsonResponse({'csrfToken': get_token(request)})
+
+def ping(request):
+    return JsonResponse({'result': 'OK'})
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().order_by('-id')
     serializer_class = PostSerializer
 
 
@@ -52,6 +59,12 @@ class PostViewSet(viewsets.ModelViewSet):
         '''request example: http://localhost:8001/api/post/797493/custom_delete'''
         # print('ARGS', args, 'KWARGS', kwargs)
         # print('QUERY PARAMS', request.query_params)
-        item = Post.objects.filter(u_id=kwargs['pk'])
-        item.delete()
+        instance = Post.objects.filter(u_id=kwargs['pk'])
+        instance.delete()
         return Response({'status': f'Successfully deleted object u_id: {kwargs["pk"]}.'})
+    
+    @action(detail=True, methods=['GET'])
+    def mostpopular(self, request,*args, **kwargs):
+        '''request example: http://localhost:8000/api/post/mostpopular/mostpopular/'''
+        instances = Post.objects.values().order_by('-up')
+        return Response(list(instances))
